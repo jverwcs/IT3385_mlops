@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/913405764690468027/bad4db5ca9304833a26fda0a50ca0ec9/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '913405764690468027'
+lifecycle_stage: active
+run_id: bad4db5ca9304833a26fda0a50ca0ec9
+run_name: Session Initialized f64b
+run_uuid: bad4db5ca9304833a26fda0a50ca0ec9
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1756308670874
+status: 1
+tags: []
+user_id: javie

@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/913405764690468027/1fec69df59dc420a8986b437f0008f9e/artifacts
+end_time: 1756308710113
+entry_point_name: ''
+experiment_id: '913405764690468027'
+lifecycle_stage: active
+run_id: 1fec69df59dc420a8986b437f0008f9e
+run_name: Dummy Classifier
+run_uuid: 1fec69df59dc420a8986b437f0008f9e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1756308709758
+status: 3
+tags: []
+user_id: javie

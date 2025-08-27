@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/913405764690468027/09eb2c206d1e4ec3952b5da9f40f93e4/artifacts
+end_time: 1756308707292
+entry_point_name: ''
+experiment_id: '913405764690468027'
+lifecycle_stage: active
+run_id: 09eb2c206d1e4ec3952b5da9f40f93e4
+run_name: Random Forest Classifier
+run_uuid: 09eb2c206d1e4ec3952b5da9f40f93e4
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1756308706916
+status: 3
+tags: []
+user_id: javie

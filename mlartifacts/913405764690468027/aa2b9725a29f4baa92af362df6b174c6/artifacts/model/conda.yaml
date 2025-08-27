@@ -1,0 +1,8 @@
+name: wheat_seeds_cls-env
+channels:
+- conda-forge
+dependencies:
+- pip<=25.1
+- pip:
+  - mlflow==2.12.1
+  - pycaret==3.3.2

@@ -1,0 +1,6 @@
+artifact_location: mlflow-artifacts:/913405764690468027
+creation_time: 1756308663840
+experiment_id: '913405764690468027'
+last_update_time: 1756308663840
+lifecycle_stage: active
+name: wheat_seeds_cls
