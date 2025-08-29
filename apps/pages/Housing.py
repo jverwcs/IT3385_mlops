@@ -1,46 +1,63 @@
-# app.py
-import os, re
+# apps/pages/02_Housing.py
+import re
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import streamlit as st
-import mlflow
-import mlflow.pyfunc
 
-# -----------------------------
-# Config
-# -----------------------------
-MLFLOW_URI  = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
-MODEL_NAME  = os.getenv("MODEL_NAME", "MelbournePriceModel")
-MODEL_STAGE = os.getenv("MODEL_STAGE", "Staging")  # or "Production"
-LOCAL_MODEL_PATH = "../models/final_gbr_pipeline"  # fallback to Task 2 saved pipeline
+# ---------- Page config ----------
+st.set_page_config(page_title="Housing — Price Prediction", page_icon="🏠", layout="wide")
+st.title("🏠 Melbourne House Price — Real-time Prediction")
 
-st.set_page_config(page_title="Melbourne House Price — Realtime", layout="wide")
+# ---------- Model loader (local .pkl only; no MLflow) ----------
+# file = .../apps/pages/Housing_Test.py
+PAGES_DIR = Path(__file__).resolve().parent        # .../apps/pages
+APPS_DIR  = PAGES_DIR.parent                       # .../apps
+PROJ_ROOT = APPS_DIR.parent                        # ← repo root
 
-# -----------------------------
-# Training schema (from Task 2)
-# -----------------------------
+MODELS_DIR = PROJ_ROOT / "models"
+MODEL_STEM = MODELS_DIR / "final_gbr_pipeline"     # for PyCaret load_model(stem)
+MODEL_PKL  = MODELS_DIR / "final_gbr_pipeline.pkl" # for joblib.load
+
+
+try:
+    from pycaret.regression import load_model as pc_load_model
+except Exception:
+    pc_load_model = None
+
+@st.cache_resource
+def load_local_model():
+    # Try PyCaret-saved pipeline first (expects stem without .pkl)
+    if pc_load_model and MODEL_PKL.exists():
+        try:
+            m = pc_load_model(str(MODEL_STEM))
+            return m, "pycaret"
+        except Exception:
+            pass
+    # Fallback: raw sklearn/joblib pickle
+    import joblib
+    if MODEL_PKL.exists():
+        m = joblib.load(MODEL_PKL)
+        return m, "joblib"
+    raise FileNotFoundError("Model file not found in models/: final_gbr_pipeline.pkl")
+
+model, model_source = load_local_model()
+st.caption(f"Model source → **{model_source}** · File: `models/final_gbr_pipeline.pkl`")
+
+# ---------- Training schema (columns your model expects) ----------
 TRAIN_FEATURES = [
-    # raw numerics
     "Rooms","Bedroom2","Bathroom","Car","Landsize","BuildingArea","Distance",
-    "YearBuilt","Propertycount","Postcode",
-    # GPS typo columns as in the original CSV / training
-    "Lattitude","Longtitude",
-    # categoricals
+    "YearBuilt","Propertycount","Postcode","Lattitude","Longtitude",
     "Suburb","Type","Method","CouncilArea","Region",
-    # engineered features added at inference
     "SaleYear","PropertyAge","BuildingArea_missing","DistanceBin",
 ]
 
 def align_to_training_schema(df: pd.DataFrame) -> pd.DataFrame:
-    """Keep only features used at training; drop anything extra (e.g., Date/Latitude/Longitude)."""
     keep = [c for c in TRAIN_FEATURES if c in df.columns]
     return df[keep]
 
-# -----------------------------
-# Helpers (match Task 2)
-# -----------------------------
+# ---------- Helpers to recreate Task-2 features ----------
 def _clean_str(x):
-    # Always use np.nan for missing; avoid pandas NA in object/categorical
     if x is None:
         return np.nan
     try:
@@ -51,12 +68,7 @@ def _clean_str(x):
     return re.sub(r"[^\w\-]+", "_", str(x)).strip("_")
 
 def _sanitize_missing_and_dtypes(df: pd.DataFrame) -> pd.DataFrame:
-    """Ensure there are NO pandas NA dtypes left; convert to numpy-friendly types."""
-    df = df.copy()
-    # Standardize all missing to np.nan
-    df = df.mask(df.isna(), np.nan)
-
-    # Convert problematic extension dtypes to numpy dtypes
+    df = df.copy().mask(df.isna(), np.nan)
     for c in df.columns:
         dt = df[c].dtype
         if pd.api.types.is_extension_array_dtype(dt):
@@ -69,80 +81,50 @@ def _sanitize_missing_and_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def add_task2_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Recreate engineered features & clean categoricals to match training schema.
-       Also ensure NO pandas.NA survives (everything -> np.nan-compatible dtypes).
-    """
     df = df.copy()
 
-    # --- alias to match training CSV typos ---
+    # align naming typos from original dataset
     if "Lattitude" not in df.columns and "Latitude" in df.columns:
         df["Lattitude"] = df["Latitude"]
     if "Longtitude" not in df.columns and "Longitude" in df.columns:
         df["Longtitude"] = df["Longitude"]
 
-    # Clean strings first (avoid special chars in categoricals)
+    # clean strings
     for c in df.select_dtypes(include=["object", "category"]).columns:
         df[c] = df[c].apply(_clean_str)
 
-    # SaleYear from Date
+    # SaleYear
     if "Date" in df.columns:
         sdt = pd.to_datetime(df["Date"], errors="coerce")
         df["SaleYear"] = sdt.dt.year
 
-    # PropertyAge = SaleYear - YearBuilt
-    if {"SaleYear", "YearBuilt"}.issubset(df.columns):
+    # PropertyAge
+    if {"SaleYear","YearBuilt"}.issubset(df.columns):
         df["PropertyAge"] = df["SaleYear"] - df["YearBuilt"]
 
-    # Missing flag for BuildingArea
+    # BuildingArea_missing flag
     if "BuildingArea" in df.columns:
         df["BuildingArea_missing"] = df["BuildingArea"].isna().astype(int)
 
-    # DistanceBin: quantile bins for many rows; safe equal-width for few rows
+    # DistanceBin
     if "Distance" in df.columns:
         non_null = df["Distance"].dropna()
         if len(non_null) >= 5:
             try:
-                bins = pd.qcut(non_null, q=5, duplicates="drop", labels=False)
-                df.loc[non_null.index, "DistanceBin"] = bins.astype("float64")
+                q = pd.qcut(non_null, q=5, duplicates="drop", labels=False)
+                df.loc[non_null.index, "DistanceBin"] = q.astype("float64")
             except Exception:
                 df["DistanceBin"] = pd.cut(df["Distance"], bins=5, labels=False, include_lowest=True).astype("float64")
         else:
-            if non_null.nunique() == 0:
-                df["DistanceBin"] = np.nan
-            elif non_null.nunique() == 1:
-                df["DistanceBin"] = 2.0
+            if non_null.nunique() <= 1:
+                df["DistanceBin"] = 2.0 if non_null.nunique()==1 else np.nan
             else:
                 df["DistanceBin"] = pd.cut(df["Distance"], bins=5, labels=False, include_lowest=True).astype("float64")
 
-    # Final: normalize missing & dtypes (kills any lingering pd.NA)
-    df = _sanitize_missing_and_dtypes(df)
-    return df
+    return _sanitize_missing_and_dtypes(df)
 
-# -----------------------------
-# Load model (registry → fallback to local)
-# -----------------------------
-@st.cache_resource
-def load_model():
-    mlflow.set_tracking_uri(MLFLOW_URI)
-    uri = f"models:/{MODEL_NAME}/{MODEL_STAGE}"
-    try:
-        model = mlflow.pyfunc.load_model(uri)
-        source = f"registry:{uri}"
-    except Exception:
-        from pycaret.regression import load_model as pc_load_model
-        model = pc_load_model(LOCAL_MODEL_PATH)
-        source = f"local:{LOCAL_MODEL_PATH}"
-    return model, source
-
-model, model_source = load_model()
-
-# -----------------------------
-# UI
-# -----------------------------
-st.title("🏠 Melbourne House Price — Real-time Prediction")
-st.caption(f"Model source → **{model_source}** · Tracking URI: {MLFLOW_URI}")
-
-tab1, tab2 = st.tabs(["Single prediction", "Batch prediction (CSV)"])
+# ---------- UI ----------
+tab1, tab2 = st.tabs(["Single prediction", "Batch prediction"])
 
 with tab1:
     st.subheader("Enter features")
@@ -179,22 +161,21 @@ with tab1:
             "Date": Date
         }])
         row_fe = add_task2_features(row)
-        row_fe = align_to_training_schema(row_fe)    # << filter to training columns
-        pred = float(model.predict(row_fe)[0])
+        row_fe = align_to_training_schema(row_fe)
+        pred = float(np.asarray(model.predict(row_fe))[0])
         st.success(f"💰 Predicted Price: **${pred:,.0f}**")
 
 with tab2:
     st.subheader("Upload CSV for batch scoring")
-    st.caption("CSV may contain the original raw columns; the app will recreate engineered features.")
     up = st.file_uploader("Choose CSV", type=["csv"])
     if up is not None:
         df = pd.read_csv(up)
         df_fe = add_task2_features(df)
-        df_fe = align_to_training_schema(df_fe)      # << filter to training columns
-        preds = model.predict(df_fe)
+        df_fe = align_to_training_schema(df_fe)
+        preds = np.asarray(model.predict(df_fe), dtype=float)
         out = df.copy()
-        out["PredictedPrice"] = np.asarray(preds, dtype=float)
-        st.write(out.head(20))
+        out["PredictedPrice"] = preds
+        st.dataframe(out.head(20))
         st.download_button(
             "⬇️ Download predictions CSV",
             data=out.to_csv(index=False).encode("utf-8"),
