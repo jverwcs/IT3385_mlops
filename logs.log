@@ -11,3 +11,20 @@
 
 2025-08-29 16:15:37,620:INFO:Initializing load_model()
 2025-08-29 16:15:37,621:INFO:load_model(model_name=models/wheat_seeds_best, platform=None, authentication=None, verbose=True)
+2025-08-29 16:16:58,870:INFO:Initializing predict_model()
+2025-08-29 16:16:58,870:INFO:predict_model(self=<pycaret.classification.oop.ClassificationExperiment object at 0x000002530CB36C80>, estimator=Pipeline(memory=Memory(location=None),
+         steps=[('label_encoding',
+                 TransformerWrapperWithInverse(transformer=LabelEncoder())),
+                ('numerical_imputer',
+                 TransformerWrapper(include=['Compactness', 'Length', 'Width',
+                                             'AsymmetryCoeff', 'Groove'],
+                                    transformer=SimpleImputer())),
+                ('categorical_imputer',
+                 TransformerWrapper(include=[],
+                                    transformer=SimpleImputer(strategy='most_frequent'))),
+                ('normalize', TransformerWrapper(transformer=StandardScaler())),
+                ('actual_estimator', LinearDiscriminantAnalysis())]), probability_threshold=None, encoded_labels=False, raw_score=True, round=4, verbose=True, ml_usecase=None, preprocess=True, encode_labels=<function _SupervisedExperiment.predict_model.<locals>.encode_labels at 0x000002530CBDD480>)
+2025-08-29 16:16:58,870:INFO:Checking exceptions
+2025-08-29 16:16:58,870:INFO:Preloading libraries
+2025-08-29 16:16:58,870:INFO:Set up data.
+2025-08-29 16:16:58,872:INFO:Set up index.
