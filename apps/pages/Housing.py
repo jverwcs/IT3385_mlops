@@ -9,6 +9,14 @@ import streamlit as st
 st.set_page_config(page_title="Housing — Price Prediction", page_icon="🏠", layout="wide")
 st.title("🏠 Melbourne House Price — Real-time Prediction")
 
+# -------------------- Model selector --------------------
+# Default to the common names; change if your filename differs (stem = path without .pkl)
+with st.sidebar:
+    st.markdown("### Navigation")
+    st.page_link("Homepage.py", label="Homepage", icon="👑")
+    st.page_link("pages/Wheat_Seeds.py", label="Wheat Seeds", icon="🌾")
+
+
 # ---------- Model loader (local .pkl only; no MLflow) ----------
 # file = .../apps/pages/Housing_Test.py
 PAGES_DIR = Path(__file__).resolve().parent        # .../apps/pages

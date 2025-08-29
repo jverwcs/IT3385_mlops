@@ -17,6 +17,7 @@ FEATURES = ["Compactness", "Length", "Width", "AsymmetryCoeff", "Groove"]
 with st.sidebar:
     st.markdown("### Navigation")
     st.page_link("Homepage.py", label="Homepage", icon="👑")
+    st.page_link("pages/Housing.py", label="Housing", icon="🏠")
 
     
 MODEL_STEM = "models/wheat_seeds_best"   # <-- no .pkl
