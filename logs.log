@@ -1,0 +1,13 @@
+2025-08-29 16:15:35,267:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2025-08-29 16:15:35,268:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2025-08-29 16:15:35,268:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2025-08-29 16:15:35,268:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2025-08-29 16:15:36,555:WARNING:C:\Users\javie\anaconda3\envs\mlops\lib\site-packages\mlflow\protos\service_pb2.py:11: UserWarning: google.protobuf.service module is deprecated. RPC implementations should provide code generator plugins which generate code specific to the RPC implementation. service.py will be removed in Jan 2025
+  from google.protobuf import service as _service
+
+2025-08-29 16:15:37,620:INFO:Initializing load_model()
+2025-08-29 16:15:37,621:INFO:load_model(model_name=models/wheat_seeds_best, platform=None, authentication=None, verbose=True)
