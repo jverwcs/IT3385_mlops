@@ -43,3 +43,5 @@ it3385_mlops/
 #### 5. Troubleshooting (common errors)
 1) When Deploying the app make sure the setting for python is 3.10
 2) If some dependencies cannot be uploaded, try upgrading pip or change to a compatitable version
+
+### **Disclaimer: This is a school project, please do not create any unnecessary issues.**
