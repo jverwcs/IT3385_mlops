@@ -15,7 +15,7 @@ with st.sidebar:
     st.markdown("### Navigation")
     st.page_link("Homepage.py", label="Homepage", icon="👑")
     st.page_link("pages/Wheat_Seeds.py", label="Wheat Seeds", icon="🌾")
-    st.page_link("pages/Wheat_Seeds.py", label="Wheat Seeds", icon="🌾")
+    st.page_link("pages/Car_Prices.py", label="Car Prices", icon="🚗")
 
 
 # ---------- Model loader (local .pkl only; no MLflow) ----------
