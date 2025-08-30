@@ -228,8 +228,6 @@ python-json-logger==3.3.0
 python-multipart==0.0.20
 pytz==2024.2
 PyWavelets==1.8.0
-pywin32==311
-pywinpty==3.0.0
 PyYAML==6.0.2
 pyzmq==27.0.2
 qpd==0.4.4
