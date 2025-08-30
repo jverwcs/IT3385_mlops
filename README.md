@@ -4,6 +4,11 @@ A Streamlit web app for training and serving ML models with a simple, student-fr
 
 Live app: https://modelpredictionmlops.streamlit.app
 
+#### 0. Team Information
+1. Naomi Low (232799E)
+2. Tiang Wenn Yit (233745H)
+3. Javier Wee (239365X)
+
 #### 1. Project overview
 
 This app lets a user:
