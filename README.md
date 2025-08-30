@@ -15,7 +15,7 @@ it3385_mlops/
 ├─ apps/                      # Streamlit front-end pages  
 │  ├─ Homepage.py             # Main entry point in Streamlit Cloud  
 │  └─ ...                     # Other pages/components  
-├─ datasets/                  # Given Datasets
+├─ datasets/                  # Given Datasets  
 ├─ models/                    # Saved models / artifacts  
 ├─ notebooks/                 # Jupyter exploration  
 ├─ temp/                      # Scratch / intermediate files 
